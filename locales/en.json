@@ -1,0 +1,21 @@
+{
+    "header": {
+        "home": "Home",
+        "about": "About",
+        "menu": "Menu",
+        "contact": "Contact",
+        "language": "Language",
+        "setting": "Setting",
+        "logout": "Logout",
+        "manage": "Manage",
+        "order":"Order"
+    },
+    "table": {
+        "name": "Name",
+        "total": "Total Price",
+        "action": "Action",
+        "status": "Status",
+        "order":"Order"
+    }
+
+}
