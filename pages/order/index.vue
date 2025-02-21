@@ -50,8 +50,8 @@
         </a-table>
     </div>
     <a-modal v-model:open="open" title="Basic Modal" @ok="handleOk" class="flex justify-center items-center">
-        <a-qrcode error-level="H" :value="'http://localhost:3000/payment/'+payment?.payment_id" icon="https://i.pinimg.com/236x/db/16/45/db1645cc1ed95625a5dff41ee9a0f164.jpg" size="200"/>
-        <p>link : {{ 'http://localhost:3000/payment/'+payment?.payment_id }}</p>
+        <a-qrcode error-level="H" :value="'https://jade-sherbet-c4ed19.netlify.app/payment/'+payment?.payment_id" icon="https://i.pinimg.com/236x/db/16/45/db1645cc1ed95625a5dff41ee9a0f164.jpg" size="200"/>
+        <p>link : {{ 'https://jade-sherbet-c4ed19.netlify.app/payment/'+payment?.payment_id }}</p>
         <p>amount : {{ payment?.amount }}</p>
         <p>vendor name : {{ payment?.vendor_name }}</p>
         <p>status : {{ payment?.status }}</p>
