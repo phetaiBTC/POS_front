@@ -11,6 +11,7 @@
         <img src="/images/img3.jpg" alt="" class="h-[250px] w-full bg-cover">
       </div>
     </a-carousel>
+    <!-- <h1>Welcome, {{ userStore.user }}</h1> -->
   </div>
 </template>
 
@@ -18,6 +19,9 @@
 definePageMeta({
   middleware: 'auth'
 })
+import { useUserStore } from '~/store/useUserStore';
+const userStore = useUserStore()
+
 </script>
 
 <style scoped>

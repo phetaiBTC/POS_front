@@ -37,9 +37,11 @@
                         icon="fas fa-lock" />
                     <FloatingLabelInput v-model="dataregister.password_confirm" type="password" label="password confirm"
                         width="w-64" icon="fas fa-lock" />
-                    <div class="flex justify-between items-center w-64">
+                    <FloatingLabelInput v-model="dataregister.phone" type="text" label="Phone"
+                        width="w-64" icon="fas fa-phone" />
+                    <!-- <div class="flex justify-between items-center w-64">
                         <a-checkbox v-model:checked="checked">Agree to terms</a-checkbox>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="flex flex-col justify-center items-center gap-2">
                     <a-button type="primary" class="w-64" @click="Register()">Sign up</a-button>
@@ -62,15 +64,16 @@ definePageMeta({
     name: 'auth'
 })
 const datalogin = reactive({
-    email: "admin@gmail.com",
-    password: "aBC123!@#"
+    email: "phetaidev@gmail.com",
+    password: "password"
 })
 
 const dataregister = reactive({
-    username: "admin",
-    email: "admin@gmail.com",
+    username: "customer",
+    email: "phetaibtc@gmail.com",
     password: "aBC123!@#",
-    password_confirm: "aBC123!@#"
+    password_confirm: "aBC123!@#",
+    phone: "0123456789"
 })
 const checked = ref(false);
 const move = ref(true);
@@ -97,14 +100,15 @@ const Register = async () => {
         const response = await $axios.post('/register', {
             name: dataregister.username,
             email: dataregister.email,
-            dristric_id: 106,
             password: dataregister.password,
-            password_confirmation: dataregister.password_confirm
+            password_confirmation: dataregister.password_confirm,
+            phone: dataregister.phone,
+            avatar:""
         });
         alert('register successful' + response.data)
         navigateTo('/');
 
-    } catch (error:any) {
+    } catch (error: any) {
         console.error('register : ', error.response.data.message);
         errorValidate.value = error.response.data.message
         alert(errorValidate.value)

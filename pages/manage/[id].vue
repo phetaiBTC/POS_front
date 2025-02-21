@@ -38,58 +38,20 @@
 
         <p v-if="message" class="mt-4 text-center text-lg text-gray-700">{{ message }}</p>
     </div>
-
-    <a-table :columns="columns" :data-source="data" :scroll="{ x: 1500, y: 300 }" class="mt-8">
-        <template #bodyCell="{ column, record, index }">
-            <template v-if="column.key === 'no'">
-                <h1 class="text-center">
-                    {{ index + 1 }}
-                </h1>
-            </template>
-            <template v-if="column.key === 'status'">
-                <div class="flex items-center w-full">
-                    <img v-if="record.image" :src="record.image" alt="..." class="w-10 h-10 mr-2">
-                    <h1>{{ record.name }}</h1>
-                </div>
-            </template>
-            <template v-if="column.key === 'operation'">
-                <div class="flex gap-2 w-full h-full justify-center items-center">
-                    <a-button type="primary" @click="handleEdit(record.id)">Edit</a-button>
-                    <a-button type="primary" danger ghost @click="handleDelete(record.id)">Danger</a-button>
-                </div>
-            </template>
-        </template>
-    </a-table>
 </template>
 
 <script setup lang="ts">
 definePageMeta({
     middleware: 'auth'
 })
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { useUserStore } from "~/store/useUserStore";
-import type { TableColumnsType } from 'ant-design-vue';
+import { useRoute } from "vue-router";
 
+import { ref, onMounted } from "vue";
+import { useUserStore } from "~/store/useUserStore";
+const route = useRoute();
+const id = route.params.id
 const userStore = useUserStore()
 const { $axios } = useNuxtApp();
-
-const columns: TableColumnsType = [
-    { title: 'No', width: 100, key: 'no', fixed: 'left' },
-    { title: 'name', width: 100, dataIndex: 'name', key: 'status', fixed: 'left' },
-    { title: 'price', dataIndex: 'price', key: '1', width: 150 },
-    { title: 'description', dataIndex: 'description', key: '4', width: 150 },
-    { title: 'vendor', dataIndex: 'vendor_name', key: '6', width: 150 },
-    { title: 'vendor id', dataIndex: 'vendor_id', key: '7', width: 150 },
-    { title: 'created at', dataIndex: 'created_at', key: '2', width: 150 },
-    { title: 'updated at', dataIndex: 'updated_at', key: '3', width: 150 },
-    {
-        title: 'Action',
-        key: 'operation',
-        fixed: 'right',
-        width: 150,
-    },
-];
 interface Product {
     name: string;
     price: number;
@@ -102,21 +64,8 @@ const form = ref<Product>({
     description: "",
     image: ""
 });
-interface DataItem {
-    id: number;
-    name: number;
-    description: string;
-    image: string;
-    created_at: string;
-    updated_at: string;
-    price: string;
-    vendor_id: number;
-    vendor_name: string;
-}
-const data = ref<DataItem[]>([]);
 
 const message = ref("");
-// Handle file upload
 const handleFileUpload = (event: Event) => {
     const fileInput = event.target as HTMLInputElement;
     if (fileInput.files && fileInput.files[0]) {
@@ -137,40 +86,18 @@ const submitForm = async () => {
     try {
         console.log(form.value)
 
-        const response = await $axios.post("/menu-item", formData, {
+        const response = await $axios.post(`/menu-item/${id}`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
         });
-        message.value = "add product successfully";
-        // router.push("/menu");
+        message.value = "update product successfully";
+        navigateTo("/menu");
     } catch (error: any) {
         message.value = error.response?.data?.message || "Failed to create product.";
         console.error(error);
     }
 };
-const getItem = async () => {
-    try {
-        const response = await $axios.get("/menu-item");
-        data.value = response.data;
-    } catch (error) {
-        console.error(error);
-    }
-};
-onMounted(() => {
-    getItem();
-});
-const handleEdit = (id: number) => {
-    navigateTo(`/manage/${id}`);
-}
-const handleDelete = async (id: number) => {
-    try {
-        await $axios.delete(`/menu-item/${id}`);
-        location.reload();
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-}
 </script>
 
 <style scoped>

@@ -7,16 +7,21 @@
             :root-style="{ color: 'blue' }" style="color: red" title="Review Your Order" placement="right"
             @after-open-change="afterOpenChange">
             <div class="p-4 bg-white rounded-md shadow-lg">
-                <h3 class="text-xl font-semibold mb-4">Your Cart</h3>
+                <h3 class="text-xl font-semibold mb-4 text-green-500 text-center pb-5">📦 ລາຍການຄຳສັ່ງຊື້</h3>
                 <div v-if="booking.length > 0">
-                    <div v-for="(item, index) in booking" :key="index" class="flex justify-between items-center mb-4">
+                    <div v-for="(item, index) in booking" :key="index"
+                        class="flex justify-between items-center my-1 border border-gray-400 rounded p-2">
+                        <img :src="item.image" alt="..." class="aspect-[1/0.8] w-20 rounded overflow-hidden">
                         <div>
-                            <p class="font-medium">name : {{ item.name }}</p>
+                            <p class="font-medium text-blue-600">{{ item.name }}</p>
                             <p class="text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
                         </div>
-                        <div class="flex items-center">
-                            <p class="text-lg font-bold">Price: ${{ item.price }} </p>
-                            <!-- Assuming price is available -->
+                        <div class="flex items-center flex-col">
+                            <p class="text-lg font-bold text-black">${{ item.price }} </p>
+                            <select v-model="item.payment_method">
+                                <option value="qr_code" selected>Qr code 💳</option>
+                                <option value="cash">Cash 💵</option>
+                            </select>
                         </div>
                     </div>
                     <div class="mt-4">
@@ -33,22 +38,24 @@
         </a-drawer>
         <a-row :gutter="16">
             <CardItem v-for="(product, index) in products" :key="index" :name="product.name"
-                :description="product.description" :price="product.price" :image="product.image"
-                :rating="product.rating" @add-to-cart="handleAddToCart" :id="product.id" />
+                :description="product.description" :price="product.price" :image="product.image" :rating="5"
+                @add-to-cart="handleAddToCart" :id="product.id" />
         </a-row>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Item } from 'ant-design-vue/es/menu';
+import { useUserStore } from '~/store/useUserStore';
+const userStore = useUserStore();
 const { $axios } = useNuxtApp();
 definePageMeta({
     middleware: 'auth'
 })
-const user = ref<number>();
 const open = ref<boolean>(false);
 
 const totalPrice = computed(() => {
-    return booking.value.reduce((total, item) => 
+    return booking.value.reduce((total, item) =>
         total + (Number(item.price) * Number(item.quantity)), 0
     );
 });
@@ -67,18 +74,25 @@ interface Booking {
     quantity: number;
     name: string;
     price: string;
+    image: string;
+    payment_method: string;
 }
 const booking = ref<Booking[]>([])
+interface Payment {
+    payment_method: string
+}
+const payments = ref<Payment[]>([])
 interface Product {
     id: number;
+    user_id: number;
     name: string;
     description: string;
-    image: string;
+    vonder_id: number;
+    vondor_name: number;
     price: string;
-    category_name: string;
-    category_id: number;
-    rating: number;
-    vonder_id: number
+    created_at: string;
+    updated_at: string;
+    image: string;
 }
 
 const products = ref<Product[]>([]);
@@ -89,39 +103,55 @@ const handleAddToCart = (item: any) => {
 
 const getData = async () => {
     try {
-        const response = await $axios.get('/menu/getall', {
-            params: { category_id: "" }
-        });
-        const userId = await $axios.get('/auth/me');
-        user.value = userId.data.user.id
+        const response = await $axios.get('/menu-item');
 
-        if (response.data && response.data.data) {
-            products.value.push(...response.data.data);
+        console.log(response.data);
+        if (response.data) {
+            products.value.push(...response.data);
         } else {
             console.error('Invalid data format received', response);
         }
     } catch (e: any) {
         console.error('Error fetching data:', e);
-        alert('An error occurred while fetching data.');
     }
 };
 onMounted(() => {
     getData();
+
 });
+interface itemR {
+    menu_item_id: number;
+    quantity: number;
+}
+const items = ref<itemR[]>([])
+
 const order = async () => {
+
     try {
-        await $axios.post('/order/create', {
-            user_id: user.value,
-            vendor_id: 1,
-            items: booking.value,
+        for (let i in booking.value) {
+            items.value.push({
+                menu_item_id: booking.value[i].menu_id,
+                quantity: booking.value[i].quantity
+            })
+        }
+        for (let i in booking.value) {
+            payments.value.push({
+                payment_method: booking.value[i].payment_method
+            })
+        }
+        console.log(items.value)
+        console.log(payments.value)
+        await $axios.post('/order', {
+            user_id: userStore.user?.id,
+            items: items.value,
+            payments: payments.value
         }).then(() => {
             alert('Order created successfully.');
             open.value = false;  // Close the drawer after the order
         });
     }
     catch (e: any) {
-        console.error('Error creating order:', e);
-        alert('An error occurred while creating the order.');
+        console.error('Error fetching data:', e);
     }
 };
 

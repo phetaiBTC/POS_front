@@ -4,8 +4,10 @@
             <div :class="['logo', collapsed ? 'collapsed' : '']">
                 <img src="https://i.pinimg.com/236x/db/16/45/db1645cc1ed95625a5dff41ee9a0f164.jpg" alt="..." width="100"
                     class="rounded-full">
-                <h1 class="text-[#fff]" style="margin: 5px 0 !important;" v-show="!collapsed">{{ profile.name }}</h1>
-                <h1 class="text-[#fff]" v-show="!collapsed">{{ profile.email }}</h1>
+                <h1 class="text-[#fff]" style="margin: 5px 0 !important;" v-show="!collapsed">{{ userStore.user?.name }}
+                </h1>
+                <h1 class="text-[#fff]" v-show="!collapsed">{{ userStore.user?.email }}</h1>
+                <!-- <h1 class="text-[#fff]" v-show="!collapsed">{{ userStore.user?.email }}</h1> -->
             </div>
             <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
                 <a-menu-item key="1">
@@ -24,7 +26,8 @@
                         <nuxt-link to="/menu">{{ $t('header.menu') }}</nuxt-link>
                     </span>
                 </a-menu-item>
-                <a-menu-item key="3" v-if="role == 'admin'">
+                <a-menu-item key="3" v-if="userStore.user?.roles.includes('admin')">
+
                     <span class="anticon anticon-pie-chart">
                         <i class="fas fa-pen-to-square  text-[20px] ml-[1px]"></i>
                     </span>
@@ -88,6 +91,8 @@ import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { Modal } from 'ant-design-vue';
 import { createVNode } from 'vue';
+import { useUserStore } from '~/store/useUserStore';
+const userStore = useUserStore()
 const { $axios } = useNuxtApp();
 const profile = ref({
     name: '',
@@ -105,8 +110,8 @@ watch(
         locale.value = newValue ? 'la' : 'en';
     },
 );
-const logout = async() => {
-    $axios.post('/auth/logout')
+const logout = async () => {
+    $axios.post('/logout')
 }
 const showConfirm = () => {
     Modal.confirm({
@@ -141,21 +146,7 @@ const breadcrumbs = computed(() => {
     return [{ name: 'Home', path: '/' }, ...breadcrumbPaths];
 });
 const visible = ref<boolean>(false);
-const getUser = async () => {
-    try {
-        await $axios.get('/auth/me').then( async(ref)=>{
-            profile.value.name = ref.data.user.name;
-            profile.value.email = ref.data.user.email;
-            role.value = ref.data.user.role
-        })
-    }catch (e: any) {
-        console.log(e)
-    }
-}
-onMounted(async() => {
-    await getUser()
-    
-})
+
 </script>
 
 <style scoped>

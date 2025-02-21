@@ -2,7 +2,9 @@
     <a-col :span="8" class="my-4">
         <div class="m-2 rounded-2xl p-6 bg-white hover:scale-102 transition duration-100 relative overflow-hidden">
             <i class="fas fa-xmark absolute top-0 right-0 p-2 bg-red-500 text-white rounded-bl-2xl" @click="deleteP(id)"
-                v-if="role == 'admin'"></i>
+            v-if="userStore.user?.roles.includes('admin')"   ></i>
+            <!-- <i class="fas fa-xmark absolute top-0 right-0 p-2 bg-red-500 text-white rounded-bl-2xl" @click="deleteP(id)"
+                v-if="role == 'admin'"></i> -->
             <img :src="image" :alt="name" class="rounded mb-2 aspect-[1/0.8]" width="100%" @click="detilies">
             <div class="flex flex-col gap-2">
                 <h1 class="text-[18px] font-bold">{{ name }}</h1>
@@ -29,6 +31,8 @@
 
 <script setup lang="ts">
 import { ref, defineProps, defineEmits, computed } from "vue";
+import { useUserStore } from "~/store/useUserStore";
+const userStore = useUserStore()
 const { $axios } = useNuxtApp()
 // const r = ref(5)
 const props = defineProps({
@@ -49,6 +53,8 @@ const addToCart = () => {
         quantity: amount.value,
         name: props.name,
         price: props.price,
+        image: props.image,
+        payment_method: "qr_code"
     });
 };
 const detilies = () => {
@@ -62,7 +68,7 @@ const formattedPrice = computed(() => {
 })
 const deleteP = async (id: any) => {
     console.log(id)
-    await $axios.delete(`/menu/${id}`)
+    await $axios.delete(`/menu-item/${id}`)
     location.reload()
 }
 // console.log(props.rating);
