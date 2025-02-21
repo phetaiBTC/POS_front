@@ -1,0 +1,8 @@
+{
+    "build": {
+      "builder": "npm",
+      "buildCommand": "pnpm install --frozen-lockfile && pnpm run build",
+      "startCommand": "pnpm run preview"
+    }
+  }
+  
